@@ -1,0 +1,42 @@
+{
+"RightHandChek":[
+	{
+		"id":0,
+		"name":"GoUp",
+		"CheckPalmNormValue":{"x":0.0,"y":1.0,"z":-0.2}, 
+		"CheckThumb":0.07999999821186066,
+		"CheckIndex":0.09700000286102295,
+		"CheckMiddle":0.10700000077486038,
+		"CheckRing":0.09700000286102295,
+		"CheckPinky":0.08699999749660492
+	},
+	{
+		"id":1,
+		"name":"GoDown",
+		"CheckPalmNormValue":{"x":0.140491008758545,"y":-0.0224410258233547,"z":0.265222817659378},
+		"CheckThumb":0.0884463042020798,
+		"CheckIndex":0.101064085960388,
+		"CheckMiddle":0.0389901176095009,
+		"CheckRing":0.0370264425873756,
+		"CheckPinky":0.0867819562554359
+	},	
+	{
+		"id":2,
+		"name":"GouOut",
+		"CheckPalmNormValue":{"x":0.180031329393387,"y":-0.0635878071188927,"z":0.308795660734177},
+		"CheckThumb":0.0900949910283089,
+		"CheckIndex":0.101661689579487,
+		"CheckMiddle":0.0395626649260521,
+		"CheckRing":0.037020780146122,
+		"CheckPinky":0.0377046801149845
+	},
+	{"id":3,
+		"name":"DDG",
+		"CheckPalmNormValue":{"x":0.105221681296825,"y":-0.00146525306627154,"z":0.286012262105942},
+		"CheckThumb":0.0561748594045639,
+		"CheckIndex":0.0457622222602367,
+		"CheckMiddle":0.0447071753442287,
+		"CheckRing":0.0420673303306103,
+		"CheckPinky":0.035701934248209}	
+	]
+}

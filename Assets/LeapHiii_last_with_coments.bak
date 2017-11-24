@@ -1,0 +1,341 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Leap;
+using Leap.Unity;
+using System.IO;
+using LitJson;
+//using SimpleJSON;
+
+public class LeapHiii : MonoBehaviour {
+	/*public GameObject BigPalKon;
+	public GameObject YkPalKon;
+	public GameObject MidPalKon;
+	public GameObject RingPalKon;
+	public GameObject MizPalKon;
+	public GameObject RightPalm; */ //eto pyt' v nikyda - s.m. nige!
+	
+	public GameObject CubeToDrive;
+	
+	private string jsonString;
+	private JsonData itemData;
+	protected Vector tP1;
+	protected Vector tP2;
+	protected Vector tP3;
+	protected Vector tP4;
+	protected Vector tP0;	
+	
+	protected Vector TipPosB;
+
+	
+	protected Vector hB;
+	protected Vector PalmNormalR;
+	Vector PalmNRtest = new Vector(0f, 1f, -0.2f);
+	Vector PalmNRtestBack = new Vector();
+	float rassta;
+	float rBig;
+	
+	float deltaRast = 0.03f;
+	float deltaAngle= 0.2f;
+	
+	public float speed=3.6f;
+	
+	float rast0=0;
+	float rast1=0;
+	float rast2=0;
+	float rast3=0;
+	float rast4=0;
+	public class Vector36
+	{
+		public double x;
+		public double y;
+		public double z;
+		
+	}
+	
+	public class CheckHandsGesturesI
+	{
+		public double id;// = 1;
+		public string name;
+		public Vector36 CheckPalmNormValueI = new Vector36();
+		public double CheckThumb;//=0.08f;
+		public double CheckIndex;//=0.097f;
+		public double CheckMiddle;//=0.107f;
+		public double CheckRing;//=0.097f;
+		public double CheckPinky;//=0.087f;
+		
+	}
+	
+	public class CheckHandsGestures
+	{
+		public int id;// = 1;
+		public string name;
+		public Vector CheckPalmNormValue;
+		public float CheckThumb;//=0.08f;
+		public float CheckIndex;//=0.097f;
+		public float CheckMiddle;//=0.107f;
+		public float CheckRing;//=0.097f;
+		public float CheckPinky;//=0.087f;
+		
+	}
+   // Controller controller;
+	//Arm arm;
+	Hand hhand;
+    LeapProvider provider;
+	Finger fingerB;
+	
+	JsonData savingToJ;
+	
+	CheckHandsGesturesI CheckG2 = new CheckHandsGesturesI();
+	
+	List<CheckHandsGestures> checkRights = new List<CheckHandsGestures>();
+
+	void Start () {
+		
+		jsonString = File.ReadAllText(Application.dataPath + "/GesturesRight.json");
+		itemData=JsonMapper.ToObject(jsonString);
+		double xyz=(double)itemData["RightHandChek"][1]["CheckPalmNormValue"]["x"];
+		Debug.Log((float)xyz);
+		
+		//Reading Vasilij Gestures =)
+		CheckHandsGestures CheckG1 = new CheckHandsGestures();
+		
+		for (int i = 0; i < itemData["RightHandChek"].Count; i++)
+		{
+			CheckG1.id=i;
+			CheckG1.name=(string)itemData["RightHandChek"][i]["name"];
+			CheckG1.CheckPalmNormValue = new Vector((float)(double)itemData["RightHandChek"][i]["CheckPalmNormValue"]["x"],(float)(double)itemData["RightHandChek"][i]["CheckPalmNormValue"]["y"], (float)(double)itemData["RightHandChek"][i]["CheckPalmNormValue"]["z"]);
+			CheckG1.CheckThumb=(float)(double)itemData["RightHandChek"][i]["CheckThumb"];
+			CheckG1.CheckIndex=(float)(double)itemData["RightHandChek"][i]["CheckIndex"];
+			CheckG1.CheckMiddle=(float)(double)itemData["RightHandChek"][i]["CheckMiddle"];
+			CheckG1.CheckRing=(float)(double)itemData["RightHandChek"][i]["CheckRing"];
+			CheckG1.CheckPinky=(float)(double)itemData["RightHandChek"][i]["CheckPinky"];
+			checkRights.Add(CheckG1);
+			CheckG1 = new CheckHandsGestures();	//chtob ne sozdavalos' tolko odin ob'ect etogo tipa =)
+			//Debug.Log(CheckG1.CheckPalmNormValue);	
+						
+			//checkRight.name = itemData["RightHandChek"][i][name];
+				
+		}
+		/*for (int h = 0; h < checkRights.Count; h++)
+        {
+			CheckHandsGestures checkRight = checkRights[h];
+			Debug.Log(checkRight.CheckPalmNormValue);	
+		}*/ //analog togo chto nige . i to i eto rabotaet rabotaet =)
+		foreach(CheckHandsGestures checkRight in checkRights) 
+			{ 
+				Debug.Log(checkRight.CheckPalmNormValue);	
+				Debug.Log("Hi");
+			}
+		/*CheckG1.id=1;
+		CheckG1.name="someName";
+		CheckG1.CheckPalmNormValue = new Vector(0f, 1f, -0.2f);
+		CheckG1.CheckThumb=0.08f;
+		CheckG1.CheckIndex=0.097f;
+		CheckG1.CheckMiddle=0.107f;
+		CheckG1.CheckRing=0.097f;
+		CheckG1.CheckPinky=0.087f;*/ // Poka zamarozili!!!
+		
+		string json = JsonUtility.ToJson(CheckG1);	
+		//Debug.Log(json);
+		
+		/*string json = JsonUtility.ToJson(PalmNRtest);	
+		PalmNRtestBack=JsonUtility.FromJson<Vector>(json);
+		Debug.Log(json);
+		Debug.Log(PalmNRtestBack); *///works! =)
+		
+		provider = FindObjectOfType<LeapProvider>() as LeapProvider;
+		
+	}
+	
+
+	void Update () {
+		Frame frame = provider.CurrentFrame;
+		List<Hand> hands = frame.Hands;
+		int lol=-1;
+        for (int h = 0; h < hands.Count; h++)
+        {
+			
+            Hand hand = hands[h];
+			
+            if (hand.IsLeft)
+            {
+        /*foreach (Hand hand in frame.Hands) //-BOLEE KOROTkij sinonim togo, chto vishe!!!
+        {
+          if (hand.IsLeft)
+          {*/
+              transform.position = hand.PalmPosition.ToVector3() +
+                                   hand.PalmNormal.ToVector3() *
+                                  (transform.localScale.y * .5f + .02f);
+              transform.rotation = hand.Basis.rotation.ToQuaternion();
+			   
+
+//float yaw = hand.Direction.Yaw;
+//float pitch = hand.Direction.Pitch;
+//float roll = hand.PalmNormal.Roll;
+			 //Debug.Log(pitch);
+			  
+          }
+		  if (hand.IsRight)
+            {
+				PalmNormalR = hand.PalmNormal;
+				hB = hand.PalmPosition;
+				
+				int ExecutableGestureByVector = -1;
+				List<Finger> fingers = hand.Fingers;
+				foreach(Finger finger in fingers)
+				{
+			
+					switch ((int)finger.Type) 
+					{
+					case 0: 
+					tP0=finger.TipPosition;
+					 break;
+					case 1: 
+					tP1=finger.TipPosition;
+					 break;
+					case 2: 
+					tP2=finger.TipPosition;
+					 break;
+					case 3: 
+					tP3=finger.TipPosition;
+					 break;
+					case 4: 
+					tP4=finger.TipPosition;
+					 break;
+					}
+					//default : Debug.Log("Errrororor");
+					//break;
+				}
+					
+					/*if ((int)finger.Type==0) { Vector tP1=finger.TipPosition; }
+					if ((int)finger.Type==1) { Vector tP2=finger.TipPosition; }
+					if ((int)finger.Type==2) { Vector tP3=finger.TipPosition; }
+					if ((int)finger.Type==3) { Vector tP4=finger.TipPosition; }
+					if ((int)finger.Type==4) { Vector tP5=finger.TipPosition; }			*/	
+					rast0=Mathf.Sqrt(Mathf.Pow(hB.x-tP0.x,2f)+Mathf.Pow(hB.y-tP0.y,2f)+Mathf.Pow(hB.z-tP0.z,2f));
+					rast1=Mathf.Sqrt(Mathf.Pow(hB.x-tP1.x,2f)+Mathf.Pow(hB.y-tP1.y,2f)+Mathf.Pow(hB.z-tP1.z,2f));
+					rast2=Mathf.Sqrt(Mathf.Pow(hB.x-tP2.x,2f)+Mathf.Pow(hB.y-tP2.y,2f)+Mathf.Pow(hB.z-tP2.z,2f));
+					rast3=Mathf.Sqrt(Mathf.Pow(hB.x-tP3.x,2f)+Mathf.Pow(hB.y-tP3.y,2f)+Mathf.Pow(hB.z-tP3.z,2f));
+					rast4=Mathf.Sqrt(Mathf.Pow(hB.x-tP4.x,2f)+Mathf.Pow(hB.y-tP4.y,2f)+Mathf.Pow(hB.z-tP4.z,2f));
+					
+					foreach(CheckHandsGestures checkRight in checkRights) 
+					{ 
+						if (/*(hand.PalmNormal.AngleTo(checkRight.CheckPalmNormValue)<deltaAngle) &*/
+						(Mathf.Abs(rast0-checkRight.CheckThumb)<deltaRast)  &
+						(Mathf.Abs(rast1-checkRight.CheckIndex)<deltaRast)  &
+						(Mathf.Abs(rast2-checkRight.CheckMiddle)<deltaRast) &
+						(Mathf.Abs(rast3-checkRight.CheckRing)<deltaRast)   &
+						(Mathf.Abs(rast4-checkRight.CheckPinky)<deltaRast) 	 )
+						//(hB.MagnitudeSquared-TipPosB.MagnitudeSquared))
+						{
+							//ExecutableGesture = 
+							lol=checkRight.id;
+							Debug.Log("DaDaDa");
+						} 
+						//Debug.Log(lol);
+					}
+					
+					
+				
+			
+					
+				
+			
+			
+			/*if ((int)finger.Type==2) { //я, сука, сутки догадывался, что надо Тайп превратить в int. документация щит.
+				
+					TipPosB = finger.TipPosition;
+					fingerB = finger;
+					//Debug.Log((int)finger.Type);
+				}
+					
+				//Debug.Log(finger.TipVelocity); 
+			}*/
+			//------------------------------------------------------------------------
+					//Debug.Log(hand.Id);
+              //transform.position = hand.PalmPosition.ToVector3() +
+                              //     hand.PalmNormal.ToVector3() *
+                             //     (transform.localScale.y * .5f + .02f);
+              //transform.rotation = hand.Basis.rotation.ToQuaternion();
+			  //------------------------------------------------------------------------
+	
+          }
+				switch (lol) 
+					{
+						case 0:
+						CubeToDrive.transform.Rotate(speed,0,0);
+						//CubeToDrive.transform.position += CubeToDrive.transform.up * speed;
+						Debug.Log(lol);
+						 break;
+						case 1:
+						//CubeToDrive.transform.position -= CubeToDrive.transform.up * speed ;
+						CubeToDrive.transform.Rotate(0,speed,0);
+						Debug.Log(lol);
+						 break;
+						case 2:
+						//CubeToDrive.transform.position = CubeToDrive.transform.forward * speed * Time.deltaTime;
+						CubeToDrive.transform.Rotate(0,0,speed);
+						Debug.Log(lol);
+						 break;
+						case 3:
+						Debug.Log(lol);
+						 break;					
+					}
+					
+		if (Input.GetKey(KeyCode.W))
+		{
+		CheckG2.id=1d;
+		CheckG2.name="someName";
+	
+		CheckG2.CheckPalmNormValueI.x=(double)hB.x;	
+		CheckG2.CheckPalmNormValueI.y = (double)hB.y;
+		CheckG2.CheckPalmNormValueI.z =(double)hB.z;
+	
+		CheckG2.CheckThumb=(double)rast0;
+		CheckG2.CheckIndex=(double)rast1;
+		CheckG2.CheckMiddle=(double)rast2;
+		CheckG2.CheckRing=(double)rast3;
+		CheckG2.CheckPinky=(double)rast4;
+	
+		savingToJ = JsonMapper.ToJson(CheckG2);
+        File.WriteAllText(Application.dataPath + "/OneGesture.json",savingToJ.ToString());
+        Debug.Log("yo");
+            
+		}
+       }
+	    
+	//Debug.Log(TipPosB);
+	//rassta=Mathf.Sqrt(Mathf.Pow(hB.x-TipPosB.x,2f)+Mathf.Pow(hB.y-TipPosB.y,2f)+Mathf.Pow(hB.z-TipPosB.z,2f));
+	//ScriptableObjec!!
+	//Debug.Log(PalmNormalR.AngleTo(PalmNRtest));
+	/*if (rassta>0.107f) 
+	{
+		//Debug.Log("Palec raskrit");
+	}*/
+	
+	//Debug.Log(hB.MagnitudeSquared-TipPosB.MagnitudeSquared);
+	//Debug.Log(fingerB.TipPosition);
+	//------------------------------------------------------------------------
+	//pyt v nikyda!!!!:
+	/*
+    //var BigPalKonPos=RightPalm.transform.position-BigPalKon.transform.position;
+	
+	//float BigPalKonPosV=Mathf.Sqrt(Mathf.Pow(RightPalm.transform.position.x*100f-BigPalKon.transform.position.x*100f,2f)+Mathf.Pow(RightPalm.transform.position.y*100f-BigPalKon.transform.position.y*100f,2f)+Mathf.Pow(RightPalm.transform.position.z*100f-BigPalKon.transform.position.z*100f,2f));
+	//if (BigPalKonPosV>14.2242f)
+	//{
+	//	Debug.Log("yo!");
+	//}
+	//when empty object - it's 0.2864428 +/- 0.0004
+	//0.1422411 0.1422411
+	//411
+	//14.22436
+	//float YkPalKonPos=
+	//float MidPalKonPos=;
+	//float RingPalKonPos=;
+	//float MizPalKonPos=;*/
+	//------------------------------------------------------------------------
+	
+	
+	}
+}

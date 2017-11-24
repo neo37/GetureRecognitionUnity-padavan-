@@ -1,0 +1,126 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Leap;
+using Leap.Unity;
+
+public class LeapHiii : MonoBehaviour {
+	public GameObject BigPalKon;
+	public GameObject YkPalKon;
+	public GameObject MidPalKon;
+	public GameObject RingPalKon;
+	public GameObject MizPalKon;
+	public GameObject RightPalm;
+	public Vector TipPosB;
+	public Vector handCenterB;
+	protected Vector PalmNormalR;
+	float rassta;
+	float rBig;
+   // Controller controller;
+	//Arm arm;
+	Hand hhand;
+    LeapProvider provider;
+	Finger fingerB;
+	
+
+	void Start () {
+		//hhand = new Hand();
+		//int id = hhand.Id;
+		//Debug.Log(id);
+		
+		provider = FindObjectOfType<LeapProvider>() as LeapProvider;
+
+		
+		
+	}
+	
+
+	void Update () {
+		Frame frame = provider.CurrentFrame;
+		List<Hand> hands = frame.Hands;
+		
+        for (int h = 0; h < hands.Count; h++)
+        {
+			
+            Hand hand = hands[h];
+			
+            if (hand.IsLeft)
+            {
+        /*foreach (Hand hand in frame.Hands) //-BOLEE KOROTkij sinonim togo, chto vishe!!!
+        {
+          if (hand.IsLeft)
+          {*/
+              transform.position = hand.PalmPosition.ToVector3() +
+                                   hand.PalmNormal.ToVector3() *
+                                  (transform.localScale.y * .5f + .02f);
+              transform.rotation = hand.Basis.rotation.ToQuaternion();
+			   
+
+//float yaw = hand.Direction.Yaw;
+//float pitch = hand.Direction.Pitch;
+//float roll = hand.PalmNormal.Roll;
+			 //Debug.Log(pitch);
+			  
+          }
+		  if (hand.IsRight)
+            {
+				PalmNormalR = hand.PalmNormal;
+				handCenterB = hand.PalmPosition;
+				List<Finger> fingers = hand.Fingers;
+				foreach(Finger finger in fingers){
+					
+					
+			if ((int)finger.Type==2) { //я, сука, сутки догадывался, что надо Тайп превратить в int. документация щит.
+				
+					TipPosB = finger.TipPosition;
+					fingerB = finger;
+					//Debug.Log((int)finger.Type);
+				}
+					
+				//Debug.Log(finger.TipVelocity); */
+			}
+			//------------------------------------------------------------------------
+					//Debug.Log(hand.Id);
+              //transform.position = hand.PalmPosition.ToVector3() +
+                              //     hand.PalmNormal.ToVector3() *
+                             //     (transform.localScale.y * .5f + .02f);
+              //transform.rotation = hand.Basis.rotation.ToQuaternion();
+			  //------------------------------------------------------------------------
+	
+          }
+       }
+	    
+	//Debug.Log(TipPosB);
+	rassta=Mathf.Sqrt(Mathf.Pow(handCenterB.x-TipPosB.x,2f)+Mathf.Pow(handCenterB.y-TipPosB.y,2f)+Mathf.Pow(handCenterB.z-TipPosB.z,2f));
+	//ScriptableObjec!!
+	Debug.Log(PalmNormalR);
+	if (rassta>0.107f) 
+	{
+		Debug.Log("Palec raskrit");
+	}
+	
+	//Debug.Log(handCenterB.MagnitudeSquared-TipPosB.MagnitudeSquared);
+	//Debug.Log(fingerB.TipPosition);
+	//------------------------------------------------------------------------
+	//pyt v nikyda!!!!:
+	/*
+    //var BigPalKonPos=RightPalm.transform.position-BigPalKon.transform.position;
+	
+	//float BigPalKonPosV=Mathf.Sqrt(Mathf.Pow(RightPalm.transform.position.x*100f-BigPalKon.transform.position.x*100f,2f)+Mathf.Pow(RightPalm.transform.position.y*100f-BigPalKon.transform.position.y*100f,2f)+Mathf.Pow(RightPalm.transform.position.z*100f-BigPalKon.transform.position.z*100f,2f));
+	//if (BigPalKonPosV>14.2242f)
+	//{
+	//	Debug.Log("yo!");
+	//}
+	//when empty object - it's 0.2864428 +/- 0.0004
+	//0.1422411 0.1422411
+	//411
+	//14.22436
+	//float YkPalKonPos=
+	//float MidPalKonPos=;
+	//float RingPalKonPos=;
+	//float MizPalKonPos=;*/
+	//------------------------------------------------------------------------
+	
+	
+	}
+}

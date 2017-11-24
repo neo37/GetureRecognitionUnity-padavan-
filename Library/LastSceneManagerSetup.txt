@@ -1,0 +1,4 @@
+sceneSetups:
+- path: Assets/Vasilij_night_deal.unity
+  isLoaded: 1
+  isActive: 1
